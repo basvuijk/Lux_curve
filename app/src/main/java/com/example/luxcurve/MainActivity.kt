@@ -134,15 +134,15 @@ class MainActivity : AppCompatActivity() {
         // Proximity sensor range decides the slider range.
         val sensors = getSystemService(SENSOR_SERVICE) as SensorManager
         val proxSensor = sensors.getDefaultSensor(Sensor.TYPE_PROXIMITY)
-        hasProx = proxSensor != null
         if (proxSensor != null) {
-            proxMax = (floor(proxSensor.maximumRange * 2f) / 2f).coerceAtLeast(1f)
-        }
-        tvProxInfo.text = if (hasProx) {
-            "Sensor range 0 to " + format1(proxSensor.maximumRange) + " cm. Many sensors only " +
+            hasProx = true
+            val range = proxSensor.maximumRange
+            proxMax = (floor(range * 2f) / 2f).coerceAtLeast(1f)
+            tvProxInfo.text = "Sensor range 0 to " + format1(range) + " cm. Many sensors only " +
                 "report near or far, so any value in between behaves the same."
         } else {
-            "This device has no proximity sensor."
+            hasProx = false
+            tvProxInfo.text = "This device has no proximity sensor."
         }
 
         // Initial values. Listeners are attached afterwards and guarded by `loading`.
