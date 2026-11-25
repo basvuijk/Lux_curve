@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark variant of the palette. -->
+<resources>
+    <color name="m_primary">#FFB68B</color>
+    <color name="m_on_primary">#532200</color>
+    <color name="m_primary_container">#753300</color>
+    <color name="m_on_primary_container">#FFDBC7</color>
+
+    <color name="m_secondary">#E6BEAA</color>
+    <color name="m_on_secondary">#432B1D</color>
+    <color name="m_secondary_container">#5C4132</color>
+    <color name="m_on_secondary_container">#FFDBC9</color>
+
+    <color name="m_tertiary">#7BD0FF</color>
+    <color name="m_on_tertiary">#00354A</color>
+    <color name="m_tertiary_container">#004C69</color>
+    <color name="m_on_tertiary_container">#C3E8FF</color>
+
+    <color name="m_surface">#1A120D</color>
+    <color name="m_on_surface">#F0DFD7</color>
+    <color name="m_surface_variant">#52443C</color>
+    <color name="m_on_surface_variant">#D7C2B8</color>
+    <color name="m_outline">#A08D84</color>
+    <color name="m_outline_variant">#52443C</color>
+
+    <color name="m_container_lowest">#140D08</color>
+    <color name="m_container_low">#221A15</color>
+    <color name="m_container">#271E19</color>
+    <color name="m_container_high">#322823</color>
+    <color name="m_container_highest">#3D332D</color>
+</resources>

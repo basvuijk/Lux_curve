@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.LuxCurve" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/m_primary</item>
+        <item name="colorOnPrimary">@color/m_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m_on_primary_container</item>
+
+        <item name="colorSecondary">@color/m_secondary</item>
+        <item name="colorOnSecondary">@color/m_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/m_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m_on_secondary_container</item>
+
+        <item name="colorTertiary">@color/m_tertiary</item>
+        <item name="colorOnTertiary">@color/m_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/m_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/m_on_tertiary_container</item>
+
+        <item name="colorSurface">@color/m_surface</item>
+        <item name="colorOnSurface">@color/m_on_surface</item>
+        <item name="colorSurfaceVariant">@color/m_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/m_on_surface_variant</item>
+        <item name="colorOutline">@color/m_outline</item>
+        <item name="colorOutlineVariant">@color/m_outline_variant</item>
+
+        <item name="colorSurfaceContainerLowest">@color/m_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/m_container_low</item>
+        <item name="colorSurfaceContainer">@color/m_container</item>
+        <item name="colorSurfaceContainerHigh">@color/m_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/m_container_highest</item>
+
+        <item name="android:colorBackground">@color/m_surface</item>
+        <item name="colorOnBackground">@color/m_on_surface</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- iOS-style large title -->
+    <style name="TextAppearance.Lux.LargeTitle" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Small coloured label above a group of settings -->
+    <style name="TextAppearance.Lux.Section" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <!-- Grey explanatory text under a group (iOS "footer") -->
+    <style name="TextAppearance.Lux.Footnote" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Big number in the status card -->
+    <style name="TextAppearance.Lux.Metric" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+        <item name="android:textSize">64sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Warm amber Material 3 palette (light). Dynamic color replaces it on Android 12+. -->
+<resources>
+    <color name="m_primary">#9B4500</color>
+    <color name="m_on_primary">#FFFFFF</color>
+    <color name="m_primary_container">#FFDBC7</color>
+    <color name="m_on_primary_container">#331300</color>
+
+    <color name="m_secondary">#765848</color>
+    <color name="m_on_secondary">#FFFFFF</color>
+    <color name="m_secondary_container">#FFDBC9</color>
+    <color name="m_on_secondary_container">#2B160B</color>
+
+    <color name="m_tertiary">#00668B</color>
+    <color name="m_on_tertiary">#FFFFFF</color>
+    <color name="m_tertiary_container">#C3E8FF</color>
+    <color name="m_on_tertiary_container">#001E2C</color>
+
+    <color name="m_surface">#FFF8F5</color>
+    <color name="m_on_surface">#221A15</color>
+    <color name="m_surface_variant">#F4DED3</color>
+    <color name="m_on_surface_variant">#52443C</color>
+    <color name="m_outline">#85736B</color>
+    <color name="m_outline_variant">#D7C2B8</color>
+
+    <color name="m_container_lowest">#FFFFFF</color>
+    <color name="m_container_low">#FFF1E9</color>
+    <color name="m_container">#FCEBE0</color>
+    <color name="m_container_high">#F6E5DA</color>
+    <color name="m_container_highest">#F0DFD4</color>
+</resources>
