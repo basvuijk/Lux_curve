@@ -50,4 +50,12 @@ class Prefs(context: Context) {
     var proxThresholdCm: Float
         get() = sp.getFloat("prox_threshold", 1f)
         set(v) = sp.edit().putFloat("prox_threshold", v.coerceAtLeast(0f)).apply()
+
+    /**
+     * Radar presence sensors report 0 when nobody is there and something else when somebody is.
+     * With this on, any reading other than 0 counts as "near" and the distance is not compared.
+     */
+    var radarMode: Boolean
+        get() = sp.getBoolean("radar_mode", false)
+        set(v) = sp.edit().putBoolean("radar_mode", v).apply()
 }

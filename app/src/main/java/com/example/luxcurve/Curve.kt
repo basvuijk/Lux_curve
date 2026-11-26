@@ -42,4 +42,11 @@ object Live {
     @Volatile var proximity = -1f
     @Volatile var percent = -1f
     @Volatile var screenOff = false
+
+    /** Panel climate sensor; NaN means "no reading". Degrees Celsius and percent relative humidity. */
+    @Volatile var temperature = Float.NaN
+    @Volatile var humidity = Float.NaN
+
+    /** Why the climate sensor could not be read, or null when it works. */
+    @Volatile var climateError: String? = null
 }

@@ -41,12 +41,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var swIdle: MaterialSwitch
     private lateinit var swLock: MaterialSwitch
     private lateinit var swProx: MaterialSwitch
+    private lateinit var swRadar: MaterialSwitch
     private lateinit var sbIdle: Slider
     private lateinit var sbProx: Slider
     private lateinit var tvStatus: TextView
     private lateinit var tvLux: TextView
     private lateinit var tvPercent: TextView
     private lateinit var tvProx: TextView
+    private lateinit var tvTemp: TextView
+    private lateinit var tvHumidity: TextView
+    private lateinit var tvClimateInfo: TextView
     private lateinit var tvWarn: TextView
     private lateinit var tvIdleValue: TextView
     private lateinit var tvProxValue: TextView
@@ -80,6 +84,9 @@ class MainActivity : AppCompatActivity() {
         tvLux = findViewById(R.id.tvLux)
         tvPercent = findViewById(R.id.tvPercent)
         tvProx = findViewById(R.id.tvProx)
+        tvTemp = findViewById(R.id.tvTemp)
+        tvHumidity = findViewById(R.id.tvHumidity)
+        tvClimateInfo = findViewById(R.id.tvClimateInfo)
         tvWarn = findViewById(R.id.tvWarn)
         tvIdleValue = findViewById(R.id.tvIdleValue)
         tvProxValue = findViewById(R.id.tvProxValue)
@@ -103,6 +110,11 @@ class MainActivity : AppCompatActivity() {
             R.id.rowProx,
             "Wake on proximity",
             "Switch the screen on when something is near the sensor"
+        )
+        swRadar = bindSwitchRow(
+            R.id.rowRadar,
+            "Radar presence mode",
+            "Wake on any reading other than 0, for radar sensors"
         )
 
         permWrite = bindPermissionRow(
@@ -150,6 +162,7 @@ class MainActivity : AppCompatActivity() {
         swIdle.isChecked = prefs.idleEnabled
         swLock.isChecked = prefs.useLock
         swProx.isChecked = prefs.proxEnabled
+        swRadar.isChecked = prefs.radarMode
 
         sbIdle.valueFrom = 5f
         sbIdle.valueTo = 900f
@@ -165,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         val threshold = ((prefs.proxThresholdCm * 2f).roundToInt() / 2f).coerceIn(0f, proxMax)
         sbProx.value = threshold
         sbProx.setLabelFormatter { format1(it) + " cm" }
-        tvProxValue.text = "Wake when closer than " + format1(threshold) + " cm"
+        updateProxText()
 
         curveView.points = prefs.curve
         curveView.onCurveChanged = { prefs.curve = it }
@@ -179,6 +192,11 @@ class MainActivity : AppCompatActivity() {
             if (!loading) prefs.proxEnabled = on
             updateEnabledStates()
         }
+        swRadar.setOnCheckedChangeListener { _, on ->
+            if (!loading) prefs.radarMode = on
+            updateProxText()
+            updateEnabledStates()
+        }
         swLock.setOnCheckedChangeListener { _, on ->
             if (!loading) {
                 prefs.useLock = on
@@ -190,7 +208,7 @@ class MainActivity : AppCompatActivity() {
             if (fromUser) prefs.idleSeconds = value.toInt()
         }
         sbProx.addOnChangeListener { _, value, fromUser ->
-            tvProxValue.text = "Wake when closer than " + format1(value) + " cm"
+            updateProxText(value)
             if (fromUser) prefs.proxThresholdCm = value
         }
         findViewById<View>(R.id.btnReset).setOnClickListener {
@@ -274,8 +292,18 @@ class MainActivity : AppCompatActivity() {
     private fun updateEnabledStates() {
         sbIdle.isEnabled = swIdle.isChecked
         tvIdleValue.alpha = if (swIdle.isChecked) 1f else 0.5f
-        sbProx.isEnabled = hasProx && swProx.isChecked
-        tvProxValue.alpha = if (hasProx && swProx.isChecked) 1f else 0.5f
+        val proxSlider = hasProx && swProx.isChecked && !swRadar.isChecked
+        sbProx.isEnabled = proxSlider
+        tvProxValue.alpha = if (proxSlider) 1f else 0.5f
+    }
+
+    /** The line above the distance slider; in radar mode there is no distance to set. */
+    private fun updateProxText(value: Float = sbProx.value) {
+        tvProxValue.text = if (swRadar.isChecked) {
+            "Radar mode: any reading other than 0 wakes the screen"
+        } else {
+            "Wake when closer than " + format1(value) + " cm"
+        }
     }
 
     private fun setServiceEnabled(on: Boolean) {
@@ -313,7 +341,22 @@ class MainActivity : AppCompatActivity() {
         }
         tvLux.text = luxText(Live.lux)
         tvPercent.text = if (Live.percent < 0f) "–" else Live.percent.roundToInt().toString() + " %"
-        tvProx.text = if (Live.proximity < 0f) "–" else format1(Live.proximity) + " cm"
+        tvProx.text = when {
+            Live.proximity < 0f -> "–"
+            prefs.radarMode -> format1(Live.proximity)
+            else -> format1(Live.proximity) + " cm"
+        }
+        tvTemp.text =
+            if (Live.running && !Live.temperature.isNaN()) format1(Live.temperature) + " °C" else "–"
+        tvHumidity.text =
+            if (Live.running && !Live.humidity.isNaN()) Live.humidity.roundToInt().toString() + " %" else "–"
+        val climateError = Live.climateError
+        if (Live.running && climateError != null) {
+            tvClimateInfo.text = "Climate sensor not readable: $climateError"
+            tvClimateInfo.visibility = View.VISIBLE
+        } else {
+            tvClimateInfo.visibility = View.GONE
+        }
         curveView.liveLux = Live.lux
 
         val canWrite = Settings.System.canWrite(this)

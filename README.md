@@ -5,7 +5,9 @@ dark mode, edge-to-edge) that
 
 1. reads the ambient light sensor and sets the screen brightness through a **curve you draw**,
 2. turns the screen off after a **user-defined idle time**,
-3. turns it back on when the **proximity sensor** reports something at or nearer than a **user-defined distance**.
+3. turns it back on when the **proximity sensor** reports something at or nearer than a **user-defined distance**
+   (or, in radar mode, whenever a radar sensor reports somebody is there),
+4. shows the **temperature and humidity** from the chip of a wall panel, when the device has one.
 
 ## Build
 
@@ -41,6 +43,13 @@ Switch on **Run brightness service** and grant what the buttons ask for:
   sensor's maximum range. Many phones only report 0 (near) or the maximum (far), so any value between
   works there. The live reading is shown at the top of the screen. While the screen is off a partial wake
   lock keeps the CPU awake so the sensor keeps reporting.
+* **Radar presence mode** (Wake up card): a radar sensor that Android reports as the proximity sensor usually
+  gives 0 when nobody is there and something else when somebody is. With this switch on, any reading other
+  than 0 wakes the screen and the distance slider is ignored. Leave it off for an ordinary proximity sensor.
+* **Temperature and humidity** (wall panels): read every 10 seconds from the panel's I2C chip through
+  `/sys/devices/platform/twi.1/i2c-1/1-0040/temp1_input` and `humidity1_input` (values in thousandths) and
+  shown in the status card. Other devices do not have these files; the screen then says why it could not
+  read them.
 * The service restarts after a reboot if it was switched on.
 
 ## Known limitations

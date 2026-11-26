@@ -21,6 +21,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
@@ -60,6 +61,24 @@ class BrightnessService : Service(), SensorEventListener {
     private var blackOverlay: View? = null
     private var touchProbe: View? = null
     private var cpuLock: PowerManager.WakeLock? = null
+
+    // Temperature and humidity of the wall panel are read on their own thread (file and shell access).
+    private val climate = ClimateSensor()
+    private var climateThread: HandlerThread? = null
+    @Volatile private var climateHandler: Handler? = null
+
+    /** Runs on the climate thread: reads both values, then schedules itself again. */
+    private val climateRunnable = object : Runnable {
+        override fun run() {
+            val t = climate.temperature()
+            val h = climate.humidity()
+            Live.temperature = t.value ?: Float.NaN
+            Live.humidity = h.value ?: Float.NaN
+            Live.climateError = t.error ?: h.error
+            val readable = t.value != null || h.value != null
+            climateHandler?.postDelayed(this, if (readable) ClimateSensor.POLL_MS else ClimateSensor.RETRY_MS)
+        }
+    }
 
     private val idleRunnable = Runnable { goOff() }
 
@@ -104,6 +123,7 @@ class BrightnessService : Service(), SensorEventListener {
         proxSensor?.let { sensors.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
         ensureTouchProbe()
         scheduleIdle()
+        startClimate()
         Live.running = true
     }
 
@@ -119,9 +139,29 @@ class BrightnessService : Service(), SensorEventListener {
         removeBlackOverlay()
         removeTouchProbe()
         releaseCpuLock()
+        stopClimate()
         Live.running = false
         Live.screenOff = false
+        Live.temperature = Float.NaN
+        Live.humidity = Float.NaN
+        Live.climateError = null
         super.onDestroy()
+    }
+
+    private fun startClimate() {
+        val thread = HandlerThread("lux-climate")
+        thread.start()
+        climateThread = thread
+        val h = Handler(thread.looper)
+        climateHandler = h
+        h.post(climateRunnable)
+    }
+
+    private fun stopClimate() {
+        climateHandler?.removeCallbacksAndMessages(null)
+        climateHandler = null
+        climateThread?.quitSafely()
+        climateThread = null
     }
 
     private fun startInForeground() {
@@ -224,8 +264,13 @@ class BrightnessService : Service(), SensorEventListener {
 
     private fun onProximity(value: Float, maxRange: Float) {
         Live.proximity = value
-        // Many sensors only report 0 (near) and maxRange (far); "far" is never "near".
-        val near = value < maxRange && value <= prefs.proxThresholdCm
+        val near = if (prefs.radarMode) {
+            // Radar presence sensors: 0 means nobody is there, anything else means somebody is.
+            value != 0f
+        } else {
+            // Many sensors only report 0 (near) and maxRange (far); "far" is never "near".
+            value < maxRange && value <= prefs.proxThresholdCm
+        }
         if (!near) return
         if (off) {
             if (prefs.proxEnabled) wake()
