@@ -179,7 +179,7 @@ class HaService : Service(), SensorEventListener {
         // Again on every start: this is where the microphone type is added once the permission is there.
         startInForeground()
         when (intent?.action) {
-            ACTION_LISTEN -> engine.listen()
+            ACTION_LISTEN -> engine.listen() // hops to the worker thread by itself
             ACTION_TEST -> handler.post {
                 announcer.enqueue(AnnounceCmd("This is a test of the speaker of the wall panel.", null, null))
             }
@@ -419,7 +419,17 @@ class HaService : Service(), SensorEventListener {
                 // not from the boot receiver. Without it the microphone delivers silence.
             }
         }
-        if (!withMic) enterForeground(notification, false)
+        if (!withMic) {
+            try {
+                enterForeground(notification, false)
+            } catch (e: Exception) {
+                // Android 12 and later refuse this when the system restarts the service while the app is in
+                // the background. Stop here: opening the app (or the next boot) starts it again.
+                HaStatus.micService = false
+                stopSelf()
+                return
+            }
+        }
         HaStatus.micService = withMic
     }
 

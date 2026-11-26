@@ -159,12 +159,20 @@ class HomeAssistantActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btnSave).setOnClickListener { save() }
         findViewById<View>(R.id.btnTest).setOnClickListener {
-            save()
-            HaService.send(this, HaService.ACTION_TEST)
+            save(announce = false)
+            if (prefs.haConfig().serviceNeeded) {
+                HaService.send(this, HaService.ACTION_TEST)
+            } else {
+                toast("Switch on MQTT or voice commands first")
+            }
         }
         findViewById<View>(R.id.btnListen).setOnClickListener {
-            save()
-            HaService.send(this, HaService.ACTION_LISTEN)
+            save(announce = false)
+            if (prefs.haConfig().voiceReady) {
+                HaService.send(this, HaService.ACTION_LISTEN)
+            } else {
+                toast("Switch on voice commands and fill in the Home Assistant address and token first")
+            }
         }
     }
 
@@ -198,7 +206,8 @@ class HomeAssistantActivity : AppCompatActivity() {
 
     // ---------------------------------------------------------------- saving
 
-    private fun save() {
+    /** Writes the screen into the settings and (re)starts the service. [announce]: say what was saved. */
+    private fun save(announce: Boolean = true) {
         prefs.mqttEnabled = swMqtt.isChecked
         prefs.mqttHost = text(etHost)
         prefs.mqttPort = text(etPort).toIntOrNull() ?: 1883
@@ -231,7 +240,11 @@ class HomeAssistantActivity : AppCompatActivity() {
             cfg.voiceEnabled && !cfg.haConfigured -> "Voice commands need the Home Assistant address and token"
             else -> null
         }
-        Toast.makeText(this, problem ?: "Saved", Toast.LENGTH_SHORT).show()
+        if (announce || problem != null) toast(problem ?: "Saved")
+    }
+
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun text(view: TextInputEditText): String = view.text?.toString()?.trim() ?: ""

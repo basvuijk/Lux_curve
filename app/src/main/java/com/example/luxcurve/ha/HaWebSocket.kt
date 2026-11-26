@@ -60,7 +60,11 @@ class HaWebSocket(
         val w = Waiter(cb)
         waiters.add(w)
         w.timer = sched.postDelayed(timeoutMs) {
-            if (waiters.remove(w)) cb(false, "Home Assistant did not answer in time")
+            if (waiters.remove(w)) {
+                cb(false, "Home Assistant did not answer in time")
+                // A connection that never got as far as logging in is not worth waiting for any longer.
+                if (!authed && connecting) drop("Home Assistant did not answer in time")
+            }
         }
         connect()
     }

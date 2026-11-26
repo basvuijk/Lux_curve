@@ -156,8 +156,9 @@ Known limits of this part:
   sensors and announcements start by themselves, the voice part says *open the app once*; opening the Lux
   Curve app (not just the Home Assistant screen) is enough.
 * The app allows plain `http` and `ws` because Home Assistant and the broker normally run without TLS on the
-  home network. Use the *Encrypted connection* switch for a broker with TLS. App backup is switched off so the
-  token and password do not end up in a cloud backup.
+  home network. The *Encrypted connection* switch is for a broker with TLS; its certificate has to be one that
+  Android trusts, a self-signed one is refused. App backup is switched off so the token and password do not
+  end up in a cloud backup.
 * Some panels have no microphone, or one that Android does not expose; the status card then says so.
 
 ## Known limitations
