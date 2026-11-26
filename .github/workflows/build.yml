@@ -21,3 +21,5 @@ jobs:
         with:
           name: lux-curve-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+      # After the APK is saved, so that a failing test never hides the build
+      - run: gradle testDebugUnitTest

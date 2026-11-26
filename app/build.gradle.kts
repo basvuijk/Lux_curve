@@ -39,4 +39,15 @@ dependencies {
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // Tests of the plain Kotlin part of the Home Assistant link (run on the JVM, no device needed)
+    testImplementation("junit:junit:4.13.2")
+}
+
+// Show what failed in the console, not just that something did
+tasks.withType<Test>().configureEach {
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
