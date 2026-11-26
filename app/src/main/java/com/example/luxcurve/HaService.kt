@@ -355,28 +355,31 @@ class HaService : Service(), SensorEventListener {
 
     @Suppress("DEPRECATION")
     private fun acquireLocks() {
-        var cpu = cpuLock
-        if (cpu == null) {
-            cpu = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "luxcurve:ha")
-            cpu.setReferenceCounted(false)
-            cpuLock = cpu
-        }
+        val cpu: PowerManager.WakeLock = cpuLock ?: newCpuLock()
         if (!cpu.isHeld) cpu.acquire()
-        var wifi = wifiLock
-        if (wifi == null) {
-            val manager = applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-            if (manager != null) {
-                val mode = if (Build.VERSION.SDK_INT >= 29) {
-                    WifiManager.WIFI_MODE_FULL_LOW_LATENCY
-                } else {
-                    WifiManager.WIFI_MODE_FULL_HIGH_PERF
-                }
-                wifi = manager.createWifiLock(mode, "luxcurve:ha")
-                wifi.setReferenceCounted(false)
-                wifiLock = wifi
-            }
-        }
+        val wifi: WifiManager.WifiLock? = wifiLock ?: newWifiLock()
         if (wifi != null && !wifi.isHeld) wifi.acquire()
+    }
+
+    private fun newCpuLock(): PowerManager.WakeLock {
+        val lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "luxcurve:ha")
+        lock.setReferenceCounted(false)
+        cpuLock = lock
+        return lock
+    }
+
+    @Suppress("DEPRECATION")
+    private fun newWifiLock(): WifiManager.WifiLock? {
+        val manager = applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return null
+        val mode = if (Build.VERSION.SDK_INT >= 29) {
+            WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+        } else {
+            WifiManager.WIFI_MODE_FULL_HIGH_PERF
+        }
+        val lock = manager.createWifiLock(mode, "luxcurve:ha")
+        lock.setReferenceCounted(false)
+        wifiLock = lock
+        return lock
     }
 
     private fun releaseLocks() {
