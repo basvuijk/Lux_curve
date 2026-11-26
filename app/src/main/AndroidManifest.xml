@@ -3,6 +3,7 @@
 
     <uses-feature android:name="android.hardware.sensor.light" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.proximity" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
@@ -11,13 +12,20 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
+    <!-- allowBackup is off because the settings now hold the Home Assistant token and the MQTT password.
+         Cleartext is on because Home Assistant and the broker usually run on the local network without TLS. -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.LuxCurve">
+        android:theme="@style/Theme.LuxCurve"
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".MainActivity"
@@ -28,6 +36,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".HomeAssistantActivity"
+            android:exported="false" />
+
         <service
             android:name=".BrightnessService"
             android:exported="false"
@@ -35,6 +47,15 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Sets screen brightness from the ambient light sensor and wakes the screen from the proximity sensor" />
+        </service>
+
+        <service
+            android:name=".HaService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse|microphone">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps the connection to Home Assistant open to publish sensor values, play announcements and relay voice commands" />
         </service>
 
         <receiver

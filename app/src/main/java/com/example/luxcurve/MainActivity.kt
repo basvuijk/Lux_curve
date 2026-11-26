@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var permWrite: View
     private lateinit var permOverlay: View
     private lateinit var permAdmin: View
+    private lateinit var rowHa: View
     private lateinit var curveView: CurveView
 
     private var hasProx = false
@@ -143,6 +144,14 @@ class MainActivity : AppCompatActivity() {
             if (dpm.isAdminActive(admin)) dpm.removeActiveAdmin(admin) else requestAdmin()
         }
 
+        rowHa = bindPermissionRow(
+            R.id.rowHa,
+            "Home Assistant",
+            "Sensors, announcements and voice commands"
+        ) {
+            startActivity(Intent(this, HomeAssistantActivity::class.java))
+        }
+
         // Proximity sensor range decides the slider range.
         val sensors = getSystemService(SENSOR_SERVICE) as SensorManager
         val proxSensor = sensors.getDefaultSensor(Sensor.TYPE_PROXIMITY)
@@ -221,6 +230,8 @@ class MainActivity : AppCompatActivity() {
 
         // Make sure the service runs again after the app was updated or the process was killed.
         if (prefs.enabled) startForegroundService(Intent(this, BrightnessService::class.java))
+        // The same for the Home Assistant link. The app is on screen now, so Android lets it use the microphone.
+        HaService.sync(this)
     }
 
     override fun onResume() {
@@ -364,6 +375,7 @@ class MainActivity : AppCompatActivity() {
         setPermissionState(permWrite, canWrite, "Allowed", "Allow")
         setPermissionState(permOverlay, canOverlay, "Allowed", "Allow")
         setPermissionState(permAdmin, dpm.isAdminActive(admin), "Active", "Set up")
+        setPermissionState(rowHa, prefs.haConfig().serviceNeeded, "On", "Set up")
 
         val warning: String? = when {
             !canWrite -> "Allow “Modify system settings” below so the curve can change the brightness."
